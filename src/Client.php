@@ -91,11 +91,10 @@ class Client
             $this->connect();
         }
         $val = $this->client->get($key)[$key];
-        if (isset($val)) {
-            self::cache_set($key, $val);
-            return $val;
-        } else {
-            throw new Exception('The value is empty.');
+        if (!isset($val)) {
+            $val = "";
         }
+        self::cache_set($key, $val);
+        return $val;
     }
 }
