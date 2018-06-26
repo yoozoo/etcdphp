@@ -19,7 +19,7 @@ class ClientTest extends \PHPUnit\Framework\TestCase
         $this->client = new Client();
         putenv("ETCD_NODE=127.0.0.1:2379");
         putenv("ETCD_USERNAME=root");
-        putenv("ETCD_PASSWORD=651225");
+        putenv("ETCD_PASSWORD=");
     }
 
     public function testGetKey()
