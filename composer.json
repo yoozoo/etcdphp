@@ -1,5 +1,5 @@
 {
-	"name": "Youzusg/etcd-tmp",
+	"name": "youzusg/etcd-tmp",
   	"type": "library",
   	"description": "PHP client for Etcd",
   	"keywords": ["etcdv3", "youzusg", "youzu"],
