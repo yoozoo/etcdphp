@@ -7,6 +7,7 @@
 namespace Youzusg;
 
 use Etcd\Client as EtcdClient;
+use Exception;
 
 class Client
 {
