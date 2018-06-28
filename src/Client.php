@@ -66,7 +66,9 @@ class Client
 
         $tmp = $this->cache_path . $key . "." . uniqid('', true) . '.tmp';
         $dir_path = substr($this->cache_path . $key, 0, strrpos($this->cache_path . $key, "/"));
-        mkdir($dir_path, 0755, true);
+        if(!is_dir($dir_path)){
+            mkdir($dir_path, 0755, true);
+        }
         file_put_contents($tmp, '<?php $val = ' . $val . ';', LOCK_EX);
         rename($tmp, "$this->cache_path$key");
     }
