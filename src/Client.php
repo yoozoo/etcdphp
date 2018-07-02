@@ -37,13 +37,15 @@ class Client
             $node = "127.0.0.1:2379";
         }
 
-        $username = getenv("ETCD_USERNAME");
-        $password = getenv("ETCD_PASSWORD");
+        $user = getenv("ETCD_USER");
 
         $this->client = new EtcdClient($node);
         $this->client->setPretty(true);
 
-        if (!empty($username)) {
+        if (!empty($user)) {
+            $user = explode(":", $user, 2);
+            $username = $user[0];
+            $password = $user[1];
             $token = $this->client->authenticate($username, $password);
             $this->client->setToken($token);
         }
