@@ -32,12 +32,12 @@ class Client
      */
     public function connect()
     {
-        $node = getenv("ETCD_NODE");
+        $node = getenv("etcd_endpoints");
         if (empty($node)) {
             $node = "127.0.0.1:2379";
         }
 
-        $user = getenv("ETCD_USER");
+        $user = getenv("etcd_user");
 
         $this->client = new EtcdClient($node);
         $this->client->setPretty(true);
