@@ -36,6 +36,8 @@ class Client
         if (empty($node)) {
             $node = "127.0.0.1:2379";
         }
+        //support multiple nodes. Use one of them
+        $node = explode(",",$node)[0];
 
         $user = getenv("etcd_user");
 
