@@ -1,9 +1,9 @@
 {
-	"name": "youzusg/etcd-tmp",
+	"name": "youzusg/etcdphp",
   	"type": "library",
   	"description": "PHP client for Etcd",
   	"keywords": ["etcdv3", "youzusg", "youzu"],
-  	"homepage": "https://github.com/youzusg/etcd-tmp",
+  	"homepage": "https://github.com/youzusg/etcdphp",
   	"license": "MIT",
   	"authors": [
     	{
