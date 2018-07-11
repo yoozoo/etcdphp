@@ -17,14 +17,17 @@ class ClientTest extends \PHPUnit\Framework\TestCase
     public function setUp()
     {
         $this->client = new Client();
-        putenv("ETCD_NODE=127.0.0.1:2379");
-        putenv("ETCD_USERNAME=root");
-        putenv("ETCD_PASSWORD=");
+        putenv("etcd_endpoints=127.0.0.1:2379");
+        putenv("etcd_user=username:pwd");
     }
 
     public function testGetKey()
     {
-        $body = $this->client->get_key("/name");
+        try{
+            $body = $this->client->get_key("/name");
+        }catch(Exception $e){
+            echo $e;
+        }
         $this->assertNotEmpty($body);
     }
 

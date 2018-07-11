@@ -24,7 +24,7 @@ class Client
     {
         $this->cache_path = $cache_path;
     }
-    
+
     /**
      * Use ENV variables to create ETCD connection.
      *
@@ -37,7 +37,7 @@ class Client
             $node = "127.0.0.1:2379";
         }
         //support multiple nodes. Use one of them
-        $node = explode(",",$node)[0];
+        $node = explode(",", $node)[0];
 
         $user = getenv("etcd_user");
 
@@ -49,6 +49,7 @@ class Client
             $username = $user[0];
             $password = $user[1];
             $token = $this->client->authenticate($username, $password);
+
             $this->client->setToken($token);
         }
 
@@ -70,11 +71,11 @@ class Client
 
         $tmp = $this->cache_path . $key . "." . uniqid('', true) . '.tmp';
         $dir_path = substr($this->cache_path . $key, 0, strrpos($this->cache_path . $key, "/"));
-        if(!is_dir($dir_path)){
+        if (!is_dir($dir_path)) {
             mkdir($dir_path, 0755, true);
         }
         file_put_contents($tmp, '<?php $val = ' . $val . ';', LOCK_EX);
-        rename($tmp, "$this->cache_path$key");
+        rename($tmp, $this->cache_path . $key);
     }
 
     /**
@@ -88,13 +89,17 @@ class Client
         if (!substr($key, 0, 1) === "/") {
             throw new Exception('key must start with /');
         }
-        @include "$this->cache_path$key";
+        @include $this->cache_path . $key;
         if (isset($val)) {
             return $val;
         }
 
         if (!isset($this->client)) {
-            $this->connect();
+            try {
+                $this->connect();
+            } catch (Exception $e) {
+                error_log($e);
+            }
         }
         $val = $this->client->get($key)[$key];
         if (!isset($val)) {
