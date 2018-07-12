@@ -91,26 +91,29 @@ class Client
             return;
         }
 
+        @include $this->cache_path . $key;
         if (isset($val)) {
             return $val;
         }
 
-        if (!isset($this->client)) {
-            try {
+        try {
+            if (!isset($this->client)) {
                 $this->connect();
-            } catch (Exception $e) {
-                echo "etcdphp connection exception: " . $e;
             }
+            $result = $this->client->get($key);
+        } catch (Exception $e) {
+            echo "etcdphp connection exception: " . $e;
+            return "";
         }
-        $val = $this->client->get($key)[$key];
-        if (!isset($val)) {
-            $val = "";
-        }
+
+        $val = array_key_exists($key, $result) ? $result[$key] : "";
+
         try {
             self::cache_set($key, $val);
         } catch (Exception $e) {
             echo "etcdphp cache exception: " . $e;
         }
+
         return $val;
     }
 }

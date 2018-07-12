@@ -13,6 +13,9 @@ local.properties
 .settings/
 .loadpath
 
+# VS Code
+.vscode/
+
 # External tool builders
 .externalToolBuilders/
 
@@ -25,7 +28,7 @@ local.properties
 # PDT-specific
 .buildpath
 
-# sbteclipse plugin 
+# sbteclipse plugin
 .target
 
 # TeXlipse plugin
