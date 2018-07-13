@@ -87,25 +87,33 @@ class Client
     public function get_key($key)
     {
         if (!substr($key, 0, 1) === "/") {
-            throw new Exception('key must start with /');
+            echo "etcdphp key exception: key must start with / , key : " . $key;
+            return;
         }
+
         @include $this->cache_path . $key;
         if (isset($val)) {
             return $val;
         }
 
-        if (!isset($this->client)) {
-            try {
+        try {
+            if (!isset($this->client)) {
                 $this->connect();
-            } catch (Exception $e) {
-                error_log($e);
             }
+            $result = $this->client->get($key);
+        } catch (Exception $e) {
+            echo "etcdphp connection exception: " . $e;
+            return "";
         }
-        $val = $this->client->get($key)[$key];
-        if (!isset($val)) {
-            $val = "";
+
+        $val = array_key_exists($key, $result) ? $result[$key] : "";
+
+        try {
+            self::cache_set($key, $val);
+        } catch (Exception $e) {
+            echo "etcdphp cache exception: " . $e;
         }
-        self::cache_set($key, $val);
+
         return $val;
     }
 }
