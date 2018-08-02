@@ -1,9 +1,9 @@
 {
-	"name": "youzusg/etcdphp",
+	"name": "yoozoo/etcdphp",
   	"type": "library",
   	"description": "PHP client for Etcd",
-  	"keywords": ["etcdv3", "youzusg", "youzu"],
-  	"homepage": "https://github.com/youzusg/etcdphp",
+  	"keywords": ["etcdv3", "yoozoo", "youzu"],
+  	"homepage": "https://github.com/yoozoo/etcdphp",
   	"license": "MIT",
   	"authors": [
     	{
@@ -20,12 +20,12 @@
 	},
 	"autoload": {
         "psr-4": {
-            "Youzusg\\": "src/"
+            "yoozoo\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Youzusg\\Tests\\": "tests/"
+            "yoozoo\\Tests\\": "tests/"
         }
     }
 }
