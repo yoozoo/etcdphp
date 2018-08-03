@@ -1,6 +1,6 @@
 <?php
 /**
- * @see  https://github.com/youzusg/etcd-tmp
+ * @see  https://github.com/yoozoo/etcdphp
  * @author  chenfang<crossfire1103@gmail.com>
  */
 
@@ -19,10 +19,37 @@ class Client
      * @var \Etcd\Client
      */
     protected $client;
+    /**
+     * @var String
+     */
+    protected $envKey;
 
     public function __construct($cache_path = __DIR__ . '/tmp/confcache')
     {
+        $this->envKey = getenv("etcd_envKey");
+        if (empty($this->envKey)) {
+            $this->envKey = "default";
+        }
+
         $this->cache_path = $cache_path;
+    }
+
+    /**
+     * Return complete key
+     *
+     * @param String $key
+     * @return String
+     */
+    private function buildKey($key)
+    {
+        //key must start with "/"
+        if (!substr($key, 0, 1) === "/") {
+            $key = "/" . $key;
+        }
+
+        $result = "/" . $this->envKey . $key;
+
+        return $result;
     }
 
     /**
@@ -86,10 +113,7 @@ class Client
      */
     public function get_key($key)
     {
-        if (!substr($key, 0, 1) === "/") {
-            echo "etcdphp key exception: key must start with / , key : " . $key;
-            return;
-        }
+        $key = $this->buildKey($key);
 
         @include $this->cache_path . $key;
         if (isset($val)) {

@@ -16,9 +16,11 @@ class ClientTest extends \PHPUnit\Framework\TestCase
 
     public function setUp()
     {
-        $this->client = new Client();
         putenv("etcd_endpoints=127.0.0.1:2379");
         putenv("etcd_user=root:pwd");
+        putenv("etcd_envKey=unitTest");
+
+        $this->client = new Client();
     }
 
     public function testGetKey()
