@@ -111,7 +111,7 @@ class Client
      * @param string $key
      * @return void
      */
-    public function get_key($key)
+    public function get_key($key, $default = "")
     {
         $key = $this->buildKey($key);
 
@@ -130,7 +130,7 @@ class Client
             return "";
         }
 
-        $val = array_key_exists($key, $result) ? $result[$key] : "";
+        $val = array_key_exists($key, $result) ? $result[$key] : $default;
 
         try {
             self::cache_set($key, $val);
