@@ -23,13 +23,23 @@ class Client
      * @var String
      */
     protected $envKey;
+    /**
+     * @var String
+     */
+    protected $etcd_endpoints;
+    /**
+     * @var String
+     */
+    protected $etcd_user;
 
-    public function __construct($cache_path = __DIR__ . '/tmp/confcache')
+    public function __construct($cache_path = __DIR__ . '/tmp/confcache', $etcd_endpoints, $etcd_user)
     {
         $this->envKey = getenv("etcd_envKey");
         if (empty($this->envKey)) {
             $this->envKey = "default";
         }
+        $this->etcd_endpoints = $etcd_endpoints;
+        $this->etcd_user = $etcd_user;
 
         $this->cache_path = $cache_path;
     }
@@ -59,14 +69,22 @@ class Client
      */
     public function connect()
     {
-        $node = getenv("etcd_endpoints");
-        if (empty($node)) {
-            $node = "127.0.0.1:2379";
+        if (empty($this->etcd_endpoints)) {
+            $node = getenv("etcd_endpoints");
+            if (empty($node)) {
+                $node = "127.0.0.1:2379";
+            }
+        } else {
+            $node = $this->etcd_endpoints;
         }
         //support multiple nodes. Use one of them
         $node = explode(",", $node)[0];
 
-        $user = getenv("etcd_user");
+        if(empty($this->etcd_user)){
+            $user = getenv("etcd_user");
+        } else {
+            $user = $this->etcd_user;
+        }
 
         $this->client = new EtcdClient($node);
         $this->client->setPretty(true);
@@ -111,7 +129,7 @@ class Client
      * @param string $key
      * @return void
      */
-    public function get_key($key, $default = "")
+    public function get_key($key)
     {
         $key = $this->buildKey($key);
 
@@ -130,7 +148,7 @@ class Client
             return "";
         }
 
-        $val = array_key_exists($key, $result) ? $result[$key] : $default;
+        $val = array_key_exists($key, $result) ? $result[$key] : "";
 
         try {
             self::cache_set($key, $val);
