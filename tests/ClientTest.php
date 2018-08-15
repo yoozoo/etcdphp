@@ -3,14 +3,14 @@
  * @author chenfang<crossfire1103@gmail.com>
  */
 
-namespace Youzusg\Tests;
+namespace Yoozoo\Tests;
 
-use Youzusg\Client;
+use Yoozoo\Client;
 
 class ClientTest extends \PHPUnit\Framework\TestCase
 {
     /**
-     * @var \Youzusg\Client;
+     * @var \Yoozoo\Client;
      */
     protected $client;
 

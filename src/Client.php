@@ -4,7 +4,7 @@
  * @author  chenfang<crossfire1103@gmail.com>
  */
 
-namespace Youzusg;
+namespace Yoozoo;
 
 use Etcd\Client as EtcdClient;
 use Exception;

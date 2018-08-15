@@ -20,12 +20,12 @@
 	},
 	"autoload": {
         "psr-4": {
-            "Youzusg\\": "src/"
+            "Yoozoo\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Youzusg\\Tests\\": "tests/"
+            "Yoozoo\\Tests\\": "tests/"
         }
     }
 }
