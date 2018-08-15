@@ -32,13 +32,32 @@ class Client
      */
     protected $etcd_user;
 
-    public function __construct($cache_path = __DIR__ . '/tmp/confcache', $etcd_endpoints, $etcd_user)
+    public function __construct($cache_path = __DIR__ . '/tmp/confcache', $etcd_endpoints = "", $etcd_user = "")
     {
+        // Priority: param > env > default
+
+        // set envKey
         $this->envKey = getenv("etcd_envKey");
         if (empty($this->envKey)) {
             $this->envKey = "default";
         }
+
+        // set etcd endpoints
+        if(empty($etcd_endpoints)){
+            $etcd_endpoints = getenv("etcd_endpoints");
+            if(empty($etcd_endpoints)){
+                $etcd_endpoints = "127.0.0.1:2379";
+            }
+        }
         $this->etcd_endpoints = $etcd_endpoints;
+
+        // set etcd user
+        if(empty($etcd_user)){
+            $etcd_user = getenv("etcd_user");
+            if(empty($etcd_user)){
+                $etcd_user = "root:root";
+            }
+        }
         $this->etcd_user = $etcd_user;
 
         $this->cache_path = $cache_path;
@@ -69,22 +88,11 @@ class Client
      */
     public function connect()
     {
-        if (empty($this->etcd_endpoints)) {
-            $node = getenv("etcd_endpoints");
-            if (empty($node)) {
-                $node = "127.0.0.1:2379";
-            }
-        } else {
-            $node = $this->etcd_endpoints;
-        }
+        $node = $this->etcd_endpoints;
         //support multiple nodes. Use one of them
         $node = explode(",", $node)[0];
 
-        if(empty($this->etcd_user)){
-            $user = getenv("etcd_user");
-        } else {
-            $user = $this->etcd_user;
-        }
+        $user = $this->etcd_user;
 
         $this->client = new EtcdClient($node);
         $this->client->setPretty(true);
