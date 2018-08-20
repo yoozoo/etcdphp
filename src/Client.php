@@ -36,7 +36,7 @@ class Client
      */
     protected $etcd_user;
 
-    public function __construct($cache_path = __DIR__ . '/tmp/confcache', $etcd_endpoints = "", $etcd_user = "")
+    public function __construct($cache_path = '/tmp/confcache', $etcd_endpoints = "127.0.0.1:2379", $etcd_user = "root:root")
     {
         // Priority: param > env > default
 
@@ -47,18 +47,18 @@ class Client
         }
 
         // set etcd endpoints
-        if(empty($etcd_endpoints)){
+        if (empty($etcd_endpoints)) {
             $etcd_endpoints = getenv("etcd_endpoints");
-            if(empty($etcd_endpoints)){
+            if (empty($etcd_endpoints)) {
                 $etcd_endpoints = "127.0.0.1:2379";
             }
         }
         $this->etcd_endpoints = $etcd_endpoints;
 
         // set etcd user
-        if(empty($etcd_user)){
+        if (empty($etcd_user)) {
             $etcd_user = getenv("etcd_user");
-            if(empty($etcd_user)){
+            if (empty($etcd_user)) {
                 $etcd_user = "root:root";
             }
         }
