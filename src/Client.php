@@ -15,18 +15,22 @@ class Client
      * @var cache path
      */
     protected $cache_path;
+
     /**
      * @var \Etcd\Client
      */
     protected $client;
+
     /**
      * @var String
      */
     protected $envKey;
+
     /**
      * @var String
      */
     protected $etcd_endpoints;
+
     /**
      * @var String
      */
@@ -64,7 +68,31 @@ class Client
     }
 
     /**
-     * Return complete key
+     * Set etcd_endpoints and etcd_user
+     *
+     * @param String $etcd_endpoints
+     * @param String $etcd_user
+     * @return void
+     */
+    public function setEtcdConfig($etcd_endpoints, $etcd_user)
+    {
+        $this->etcd_endpoints = $etcd_endpoints;
+        $this->etcd_user = $etcd_user;
+    }
+
+    /**
+     * Set cahce path
+     *
+     * @param String $cache_path
+     * @return void
+     */
+    public function setCachePath($cache_path)
+    {
+        $this->cache_path = $cache_path;
+    }
+
+    /**
+     * Return complete key: /env/appname/key
      *
      * @param String $key
      * @return String
