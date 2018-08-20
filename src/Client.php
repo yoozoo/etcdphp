@@ -36,6 +36,12 @@ class Client
      */
     protected $etcd_user;
 
+    /**
+     * @var Bool
+     * will not read and set cache file if this flag is true
+     */
+    protected $disable_cache = false;
+
     public function __construct($cache_path = '/tmp/confcache', $etcd_endpoints = "127.0.0.1:2379", $etcd_user = "root:root")
     {
         // Priority: param > env > default
@@ -63,6 +69,11 @@ class Client
             }
         }
         $this->etcd_user = $etcd_user;
+
+        // check if disable cache flag is set.
+        if (getenv("etcd_disable_cache")) {
+            $this->disable_cache = true;
+        }
 
         $this->cache_path = $cache_path;
     }
@@ -169,9 +180,11 @@ class Client
     {
         $key = $this->buildKey($key);
 
-        @include $this->cache_path . $key;
-        if (isset($val)) {
-            return $val;
+        if (!$this->disable_cache) {
+            @include $this->cache_path . $key;
+            if (isset($val)) {
+                return $val;
+            }
         }
 
         try {
@@ -186,10 +199,12 @@ class Client
 
         $val = array_key_exists($key, $result) ? $result[$key] : "";
 
-        try {
-            self::cache_set($key, $val);
-        } catch (Exception $e) {
-            echo "etcdphp cache exception: " . $e;
+        if (!$this->disable_cache) {
+            try {
+                self::cache_set($key, $val);
+            } catch (Exception $e) {
+                echo "etcdphp cache exception: " . $e;
+            }
         }
 
         return $val;
