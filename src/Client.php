@@ -47,7 +47,7 @@ class Client
         // Priority: param > env > default
 
         // set envKey
-        $this->envKey = getenv("etcd_envKey");
+        $this->envKey = getenv("etcd_envkey");
         if (empty($this->envKey)) {
             $this->envKey = "default";
         }
