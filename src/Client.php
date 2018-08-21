@@ -141,10 +141,11 @@ class Client
             $username = $user[0];
             $password = $user[1];
             $token = $this->client->authenticate($username, $password);
-
             $this->client->setToken($token);
+        } else {
+            echo "etcdphp connection exception: User is empty.";
+            return "";
         }
-
     }
 
     /**
