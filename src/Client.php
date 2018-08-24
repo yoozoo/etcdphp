@@ -6,8 +6,7 @@
 
 namespace Yoozoo;
 
-use Etcd\Client as EtcdClient;
-use Exception;
+use Yoozoo\Etcd\EtcdClient;
 
 class Client
 {
@@ -38,9 +37,14 @@ class Client
 
     /**
      * @var Bool
-     * will not read and set cache file if this flag is true
+     * will not read or set cache file if this flag is true
      */
     protected $disable_cache = false;
+
+    /**
+     * template for php cache file
+     */
+    const template = "<?php\n// mod_revision = %s\n// version = %s\n\$val = %s;\n";
 
     public function __construct($cache_path = '/tmp/confcache', $etcd_endpoints = "127.0.0.1:2379", $etcd_user = "root:root")
     {
@@ -155,11 +159,9 @@ class Client
      * @param string $val
      * @return void
      */
-    public function cache_set($key, $val)
+    public function cache_set($key, $result_array)
     {
-        //echo "set key: $key";
-        $val = var_export($val, true);
-
+        $val = var_export($result_array['value'], true);
         $val = str_replace('stdClass::__set_state', '(object)', $val);
 
         $tmp = $this->cache_path . $key . "." . uniqid('', true) . '.tmp';
@@ -167,7 +169,7 @@ class Client
         if (!is_dir($dir_path)) {
             mkdir($dir_path, 0755, true);
         }
-        file_put_contents($tmp, '<?php $val = ' . $val . ';', LOCK_EX);
+        file_put_contents($tmp, sprintf(self::template, $result_array['mod_revision'], $result_array['version'], $val), LOCK_EX);
         rename($tmp, $this->cache_path . $key);
     }
 
@@ -192,22 +194,33 @@ class Client
             if (!isset($this->client)) {
                 $this->connect();
             }
+
+            $this->client->setPretty(false); // set pretty output to false to get full output
             $result = $this->client->get($key);
         } catch (Exception $e) {
             echo "etcdphp connection exception: " . $e;
             return "";
         }
 
-        $val = array_key_exists($key, $result) ? $result[$key] : "";
+
+        if (isset($result['kvs'])) {
+            $result_array = $result['kvs'][0];
+        } else {
+            $result_array = array(
+                "value" => "",
+                "mod_revision" => "-1",
+                "version" => "-1",
+            );
+        }
 
         if (!$this->disable_cache) {
             try {
-                self::cache_set($key, $val);
+                self::cache_set($key, $result_array);
             } catch (Exception $e) {
                 echo "etcdphp cache exception: " . $e;
             }
         }
 
-        return $val;
+        return $result_array["value"];
     }
 }

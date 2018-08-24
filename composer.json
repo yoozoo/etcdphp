@@ -20,7 +20,8 @@
 	},
 	"autoload": {
         "psr-4": {
-            "Yoozoo\\": "src/"
+			"Yoozoo\\": "src/",
+			"Yoozoo\\Etcd\\": "src/"
         }
     },
     "autoload-dev": {
