@@ -205,6 +205,9 @@ class Client
 
         if (isset($result['kvs'])) {
             $result_array = $result['kvs'][0];
+            if (!isset($result_array["value"])) {
+                $result_array["value"] = ""; // set value to empty string is value is NULL
+            }
         } else {
             $result_array = array(
                 "value" => "",
