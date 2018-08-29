@@ -1,5 +1,5 @@
 # etcdphp
-Combine Etcd-client and temp file to build a kv store.
+Combine Etcd-client and temp file to build a kv store. Inpired by [etcd-php](https://github.com/ouqiang/etcd-php).
 
 # Config
 This package read config from constructor param or env.
