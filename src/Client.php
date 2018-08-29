@@ -46,7 +46,7 @@ class Client
      */
     const template = "<?php\n// mod_revision = %s\n// version = %s\n\$val = %s;\n";
 
-    public function __construct($cache_path = '/tmp/confcache', $etcd_endpoints = "127.0.0.1:2379", $etcd_user = "root:root")
+    public function __construct($cache_path = "/tmp/confcache", $etcd_endpoints = "", $etcd_user = "")
     {
         // Priority: param > env > default
 
