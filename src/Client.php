@@ -7,6 +7,7 @@
 namespace Yoozoo;
 
 use Yoozoo\Etcd\EtcdClient;
+use Yoozoo\Agent;
 
 class Client
 {
@@ -46,40 +47,82 @@ class Client
      */
     const template = "<?php\n// mod_revision = %s\n// version = %s\n\$val = %s;\n";
 
-    public function __construct($cache_path = "/tmp/confcache", $etcd_endpoints = "", $etcd_user = "")
+    public function __construct($appname, $cache_path = "", $etcd_endpoints = "", $etcd_user = "")
     {
-        // Priority: param > env > default
+        /** Priority: param > env > protoagent > default
+         *  all variable cannot be empty
+         * */
 
+        /** set from param **/
+        // set etcd config
+        $this->etcd_endpoints = $etcd_endpoints;
+        $this->etcd_user = $etcd_user;
+        // set cache file
+        $this->cache_path = $cache_path;
+
+        /** set from env **/
         // set envKey
         $this->envKey = getenv("etcd_envkey");
-        if (empty($this->envKey)) {
-            $this->envKey = "default";
+        // set etcd config
+        if(empty($this->etcd_endpoints)){
+            $this->etcd_endpoints = getenv("etcd_endpoints");
         }
-
-        // set etcd endpoints
-        if (empty($etcd_endpoints)) {
-            $etcd_endpoints = getenv("etcd_endpoints");
-            if (empty($etcd_endpoints)) {
-                $etcd_endpoints = "127.0.0.1:2379";
-            }
+        if(empty($this->etcd_user)){
+            $this->etcd_user = getenv("etcd_user");
         }
-        $this->etcd_endpoints = $etcd_endpoints;
-
-        // set etcd user
-        if (empty($etcd_user)) {
-            $etcd_user = getenv("etcd_user");
-            if (empty($etcd_user)) {
-                $etcd_user = "root:root";
-            }
-        }
-        $this->etcd_user = $etcd_user;
-
-        // check if disable cache flag is set.
+        // set disable cache file
         if (getenv("etcd_disable_cache")) {
             $this->disable_cache = true;
         }
 
-        $this->cache_path = $cache_path;
+        /** set from protoagent **/
+        $agentResult = getEtcdConfigFromAgent();
+        if(isset($agentResult)){
+            // set etcd config
+            if (empty($this->etcd_endpoints)) {
+                $this->etcd_endpoints = $agentResult->get_endpoints();
+            }
+            if (empty($this->etcd_user)) {
+                $this->etcd_user = $agentResult->get_user().":".$agentResult->get_password();
+            }
+        }
+
+        /** set from default **/
+        // set envKey
+        if (empty($this->envKey)) {
+            $this->envKey = "default";
+        }
+        // set etcd config
+        if (empty($this->etcd_endpoints)) {
+            $this->etcd_endpoints = "127.0.0.1:2379";
+        }
+        if (empty($this->etcd_user)) {
+            $this->etcd_user = "root:root";
+        }
+        // set confcache path
+        if (empty($this->etcd_user)) {
+            $this->cache_path = "/tmp/confcache";
+        }
+    }
+
+    /**
+     * Get etcd configuration from protoagent (version.uuzu.com/Merlion/protoagent)
+     *
+     * @return Agent\LogonInfoReply
+     */
+    public function getEtcdConfigFromAgent()
+    {
+        $agent = new Agent\AgentService();
+        $logonInfoRequest = new Agent\LogonInfoRequest();
+        $logonInfoRequest->set_app_token();
+        $logonInfoRequest->set_env($this->envKey);
+        try{
+            $logonInfoReply = $agent->getLogonInfo($logonInfoRequest);
+            return $logonInfoReply;
+        } catch (Exception $e) {
+            echo "etcdphp connection exception: User is empty.";
+            return;
+        }
     }
 
     /**

@@ -21,7 +21,8 @@
 	"autoload": {
         "psr-4": {
 			"Yoozoo\\": "src/",
-			"Yoozoo\\Etcd\\": "src/"
+			"Yoozoo\\Etcd\\": "src/",
+			"Yoozoo\\Agent\\": "src/"
         }
     },
     "autoload-dev": {
