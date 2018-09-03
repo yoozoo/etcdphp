@@ -91,7 +91,7 @@ class Client
             $this->envKey = "default";
         }
         // set confcache path
-        if (empty($this->etcd_user)) {
+        if (empty($this->cache_path)) {
             $this->cache_path = "/tmp/confcache";
         }
     }
