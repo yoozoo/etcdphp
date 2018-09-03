@@ -43,11 +43,21 @@ class Client
     protected $disable_cache = false;
 
     /**
+     * @var String
+     */
+    protected $app_token;
+
+    /**
+     * @var String
+     */
+    protected $app_name;
+
+    /**
      * template for php cache file
      */
     const template = "<?php\n// mod_revision = %s\n// version = %s\n\$val = %s;\n";
 
-    public function __construct($appname, $cache_path = "", $etcd_endpoints = "", $etcd_user = "")
+    public function __construct($cache_path = "", $etcd_endpoints = "", $etcd_user = "")
     {
         /** Priority: param > env > protoagent > default
          *  all variable cannot be empty
@@ -75,29 +85,10 @@ class Client
             $this->disable_cache = true;
         }
 
-        /** set from protoagent **/
-        $agentResult = getEtcdConfigFromAgent();
-        if(isset($agentResult)){
-            // set etcd config
-            if (empty($this->etcd_endpoints)) {
-                $this->etcd_endpoints = $agentResult->get_endpoints();
-            }
-            if (empty($this->etcd_user)) {
-                $this->etcd_user = $agentResult->get_user().":".$agentResult->get_password();
-            }
-        }
-
         /** set from default **/
         // set envKey
         if (empty($this->envKey)) {
             $this->envKey = "default";
-        }
-        // set etcd config
-        if (empty($this->etcd_endpoints)) {
-            $this->etcd_endpoints = "127.0.0.1:2379";
-        }
-        if (empty($this->etcd_user)) {
-            $this->etcd_user = "root:root";
         }
         // set confcache path
         if (empty($this->etcd_user)) {
@@ -150,6 +141,28 @@ class Client
     }
 
     /**
+     * Set app name
+     *
+     * @param String $app_name
+     * @return void
+     */
+    public function setAppName($app_name)
+    {
+        $this->app_name = $app_name;
+    }
+
+    /**
+     * Set app token
+     *
+     * @param String $app_token
+     * @return void
+     */
+    public function setAppToken($app_token)
+    {
+        $this->app_token = $app_token;
+    }
+
+    /**
      * Return complete key: /env/appname/key
      *
      * @param String $key
@@ -174,6 +187,26 @@ class Client
      */
     public function connect()
     {
+        /** set from protoagent **/
+        $agentResult = getEtcdConfigFromAgent();
+        if(isset($agentResult)){
+            // set etcd config
+            if (empty($this->etcd_endpoints)) {
+                $this->etcd_endpoints = $agentResult->get_endpoints();
+            }
+            if (empty($this->etcd_user)) {
+                $this->etcd_user = $agentResult->get_user().":".$agentResult->get_password();
+            }
+        }
+
+        /** set from default **/
+        if (empty($this->etcd_endpoints)) {
+            $this->etcd_endpoints = "127.0.0.1:2379";
+        }
+        if (empty($this->etcd_user)) {
+            $this->etcd_user = "root:root";
+        }
+
         $node = $this->etcd_endpoints;
         //support multiple nodes. Use one of them
         $node = explode(",", $node)[0];
