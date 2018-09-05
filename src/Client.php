@@ -105,7 +105,7 @@ class Client
     {
         $agent = new Agent\AgentService();
         $logonInfoRequest = new Agent\LogonInfoRequest();
-        $logonInfoRequest->set_app_token();
+        $logonInfoRequest->set_app_token($this->app_token);
         $logonInfoRequest->set_env($this->envKey);
         try{
             $logonInfoReply = $agent->getLogonInfo($logonInfoRequest);
@@ -188,7 +188,7 @@ class Client
     public function connect()
     {
         /** set from protoagent **/
-        $agentResult = getEtcdConfigFromAgent();
+        $agentResult = $this->getEtcdConfigFromAgent();
         if(isset($agentResult)){
             // set etcd config
             if (empty($this->etcd_endpoints)) {
@@ -200,6 +200,7 @@ class Client
         }
 
         /** set from default **/
+        // will not support default value in the furture
         if (empty($this->etcd_endpoints)) {
             $this->etcd_endpoints = "127.0.0.1:2379";
         }
@@ -209,11 +210,16 @@ class Client
 
         $node = $this->etcd_endpoints;
         //support multiple nodes. Use one of them
-        $node = explode(",", $node)[0];
+        $node = explode(",", $node);
 
         $user = $this->etcd_user;
 
-        $this->client = new EtcdClient($node);
+        try{
+            $this->client = new EtcdClient($node);
+        } catch (Exception $e){
+            echo $e->getMessage();
+            return "";
+        }
         $this->client->setPretty(true);
 
         if (!empty($user)) {

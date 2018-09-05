@@ -7,6 +7,7 @@
 namespace Yoozoo\Etcd;
 
 use GuzzleHttp\Client as HttpClient;
+use Exception;
 
 class EtcdClient
 {
@@ -51,6 +52,9 @@ class EtcdClient
     const PERMISSION_WRITE = 1;
     const PERMISSION_READWRITE = 2;
 
+    // Maintenance
+    const URI_MAINTENANCE_STATUS = 'maintenance/status';
+
     /**
      * @var string host:port
      */
@@ -75,21 +79,28 @@ class EtcdClient
      */
     protected $token = null;
 
-    public function __construct($server = '127.0.0.1:2379', $version = 'v3alpha')
+    public function __construct(array $server = ['127.0.0.1:2379'], $version = 'v3alpha')
     {
-        $this->server = rtrim($server);
-        if (strpos($this->server, 'http') !== 0) {
-            $this->server = 'http://' . $this->server;
-        }
         $this->version = trim($version);
 
-        $baseUri = sprintf('%s/%s/', $this->server, $this->version);
-        $this->httpClient = new HttpClient(
-            [
-                'base_uri' => $baseUri,
-                'timeout'  => 30,
-            ]
-        );
+        foreach ($server as $node) {
+            $this->server = rtrim($node);
+            if (strpos($this->server, 'http') !== 0) {
+                $this->server = 'http://' . $this->server;
+            }
+
+            $baseUri = sprintf('%s/%s/', $this->server, $this->version);
+            $this->httpClient = new HttpClient(
+                [
+                    'base_uri' => $baseUri,
+                    'timeout' => 30,
+                ]
+            );
+            if ($this->testConnect()) {
+                return;
+            }
+        }
+        throw new Exception("Invalid end points: " . implode(",", $server));
     }
 
     public function setPretty($enabled)
@@ -105,6 +116,30 @@ class EtcdClient
     public function clearToken()
     {
         $this->token = null;
+    }
+
+    // region test connection
+
+    /**
+     * Use status api to test connection.
+     *
+     * @param array $options
+     * @return void
+     */
+    public function testConnect(array $options = [])
+    {
+        $options = $this->encode($options);
+        try{
+            $body = $this->request(self::URI_MAINTENANCE_STATUS, [], $options);
+        } catch (\GuzzleHttp\Exception\ConnectException $e) {
+            return false;
+        }
+
+        var_dump($body);
+        if (!empty($body)) {
+            return true;
+        }
+        return false;
     }
 
     // region kv
@@ -136,7 +171,7 @@ class EtcdClient
         $body = $this->decodeBodyForFields(
             $body,
             'prev_kv',
-            ['key', 'value',]
+            ['key', 'value']
         );
 
         if (isset($body['prev_kv']) && $this->pretty) {
@@ -176,7 +211,7 @@ class EtcdClient
         $body = $this->decodeBodyForFields(
             $body,
             'kvs',
-            ['key', 'value',]
+            ['key', 'value']
         );
 
         if (isset($body['kvs']) && $this->pretty) {
@@ -237,7 +272,7 @@ class EtcdClient
         $body = $this->decodeBodyForFields(
             $body,
             'prev_kvs',
-            ['key', 'value',]
+            ['key', 'value']
         );
 
         if (isset($body['prev_kvs']) && $this->pretty) {
@@ -291,7 +326,6 @@ class EtcdClient
             'TTL' => $ttl,
             'ID' => $id,
         ];
-
 
         $body = $this->request(self::URI_GRANT, $params);
 
@@ -359,7 +393,7 @@ class EtcdClient
         $body = $this->request(self::URI_TIMETOLIVE, $params);
 
         if (isset($body['keys'])) {
-            $body['keys'] = array_map(function($value) {
+            $body['keys'] = array_map(function ($value) {
                 return base64_decode($value);
             }, $body['keys']);
         }
@@ -450,7 +484,7 @@ class EtcdClient
         $body = $this->decodeBodyForFields(
             $body,
             'perm',
-            ['key', 'range_end',]
+            ['key', 'range_end']
         );
         if ($this->pretty && isset($body['perm'])) {
             return $body['perm'];

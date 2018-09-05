@@ -16,7 +16,7 @@ class ClientTest extends \PHPUnit\Framework\TestCase
 
     public function setUp()
     {
-        putenv("etcd_endpoints=127.0.0.1:2379");
+        putenv("etcd_endpoints=127.0.0.1:2380,127.0.0.1:2379");
         putenv("etcd_user=root:pwd");
         putenv("etcd_envKey=unitTest");
         // putenv("etcd_disable_cache=true");
