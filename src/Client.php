@@ -6,8 +6,8 @@
 
 namespace Yoozoo;
 
+use agentApplicationService;
 use Yoozoo\Etcd\EtcdClient;
-use Yoozoo\Agent;
 
 class Client
 {
@@ -74,10 +74,10 @@ class Client
         // set envKey
         $this->envKey = getenv("etcd_envkey");
         // set etcd config
-        if(empty($this->etcd_endpoints)){
+        if (empty($this->etcd_endpoints)) {
             $this->etcd_endpoints = getenv("etcd_endpoints");
         }
-        if(empty($this->etcd_user)){
+        if (empty($this->etcd_user)) {
             $this->etcd_user = getenv("etcd_user");
         }
         // set disable cache file
@@ -103,15 +103,15 @@ class Client
      */
     public function getEtcdConfigFromAgent()
     {
-        $agent = new Agent\AgentService();
-        $logonInfoRequest = new Agent\LogonInfoRequest();
+        $agent = new agentApplicationService\AgentApplicationService("127.0.0.1:57582");
+        $logonInfoRequest = new agentApplicationService\LogonInfoRequest();
         $logonInfoRequest->set_app_token($this->app_token);
         $logonInfoRequest->set_env($this->envKey);
-        try{
+        try {
             $logonInfoReply = $agent->getLogonInfo($logonInfoRequest);
             return $logonInfoReply;
         } catch (Exception $e) {
-            echo "etcdphp connection exception: User is empty.";
+            echo $e->getMessage();
             return;
         }
     }
@@ -188,14 +188,12 @@ class Client
     public function connect()
     {
         /** set from protoagent **/
-        $agentResult = $this->getEtcdConfigFromAgent();
-        if(isset($agentResult)){
-            // set etcd config
-            if (empty($this->etcd_endpoints)) {
+
+        if (empty($this->etcd_endpoints) || empty($this->etcd_user)) {
+            $agentResult = $this->getEtcdConfigFromAgent();
+            if (isset($agentResult)) {
                 $this->etcd_endpoints = $agentResult->get_endpoints();
-            }
-            if (empty($this->etcd_user)) {
-                $this->etcd_user = $agentResult->get_user().":".$agentResult->get_password();
+                $this->etcd_user = $agentResult->get_user() . ":" . $agentResult->get_password();
             }
         }
 
@@ -214,9 +212,9 @@ class Client
 
         $user = $this->etcd_user;
 
-        try{
+        try {
             $this->client = new EtcdClient($node);
-        } catch (Exception $e){
+        } catch (Exception $e) {
             echo $e->getMessage();
             return "";
         }
@@ -283,7 +281,6 @@ class Client
             echo "etcdphp connection exception: " . $e;
             return "";
         }
-
 
         if (isset($result['kvs'])) {
             $result_array = $result['kvs'][0];
