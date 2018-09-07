@@ -406,7 +406,7 @@ class AgentApplicationService
 
     public function __construct($baseUri = '127.0.0.1:8080')
     {
-        $this->httpClient = new ProtoApi\httpClient(
+        $this->httpClient = new ProtoApi\HttpClient(
             array(
                 'base_uri' => $baseUri,
                 'timeout' => 30,
