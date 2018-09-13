@@ -13,7 +13,7 @@
     	}
   	],
     "require": {
-		"yoozoo/protoapi": "^0.0.2"
+		"yoozoo/protoapi": "~0.0.3"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "7"
