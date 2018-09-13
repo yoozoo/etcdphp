@@ -135,7 +135,6 @@ class EtcdClient
             return false;
         }
 
-        var_dump($body);
         if (!empty($body)) {
             return true;
         }
