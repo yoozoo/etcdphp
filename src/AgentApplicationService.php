@@ -59,7 +59,7 @@ class AuthError extends ProtoApi\CommonErrorException implements ProtoApi\Messag
     public function validate()
     {
         if (!isset($this->message)) {
-            throw new Protoapi\GeneralException("'message' is not exist");
+            throw new ProtoApi\GeneralException("'message' is not exist");
         }
     }
 
@@ -95,7 +95,7 @@ class BindError extends ProtoApi\CommonErrorException implements ProtoApi\Messag
     public function validate()
     {
         if (!isset($this->message)) {
-            throw new Protoapi\GeneralException("'message' is not exist");
+            throw new ProtoApi\GeneralException("'message' is not exist");
         }
     }
 
