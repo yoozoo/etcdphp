@@ -92,7 +92,7 @@ class Client
         }
         // set confcache path
         if (empty($this->cache_path)) {
-            $this->cache_path = "/tmp/confcache";
+            $this->cache_path = "/data/confcache";
         }
     }
 
