@@ -53,6 +53,16 @@ class Client
     protected $app_name;
 
     /**
+     * @var Bool
+     */
+    protected $read_from_local_flag;
+
+    /**
+     * @var String
+     */
+    protected $local_file_path;
+
+    /**
      * template for php cache file
      */
     const template = "<?php\n// mod_revision = %s\n// version = %s\n\$val = %s;\n";
@@ -163,6 +173,28 @@ class Client
     }
 
     /**
+     * Set read_from_local_flag
+     *
+     * @param Bool $flag
+     * @return void
+     */
+    public function setReadFromLocalFlag($flag)
+    {
+        $this->read_from_local_flag = $flag;
+    }
+
+    /**
+     * Set Local File Path
+     *
+     * @param String $file_path
+     * @return void
+     */
+    public function setLocalFilePath($file_path)
+    {
+        $this->local_file_path = $file_path;
+    }
+
+    /**
      * Return complete key: /env/appname/key
      *
      * @param String $key
@@ -261,6 +293,10 @@ class Client
      */
     public function get_key($key)
     {
+        if ($this->read_from_local_flag) {
+            return $this->read_from_local($key);
+        }
+
         $key = $this->buildKey($key);
 
         if (!$this->disable_cache) {
@@ -304,5 +340,30 @@ class Client
         }
 
         return $result_array["value"];
+    }
+
+    /**
+     * Read Key From Local File
+     *
+     * @param String $key
+     * @return void
+     */
+    private function read_from_local($key)
+    {
+        $content = file_get_contents($this->local_file_path);
+        $jsonData = json_decode($content, true);
+
+        // recursively find result
+        $keys = explode("/", $key, 3)[2];
+        $keys = explode("/", $keys);
+        foreach ($keys as $k) {
+            if (!isset($jsonData[$k])) {
+                echo "etcdphp local file exception: Cannot find key " . $k . "\n" . $content;
+                return "";
+            }
+            $jsonData = $jsonData[$k];
+        }
+
+        return $jsonData;
     }
 }

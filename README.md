@@ -13,5 +13,44 @@ etcd endpoints |  etcd_endpoints | etcd_endpoints | endpoints | 127.0.0.1:2379 |
 etcd user | etcd_user | etcd_user | user, password | root:root | username:password
 etcd envkey | - | etcd_envKey | - | default | indicate current env (for furture use)
 disable cache flag | - | etcd_disable_cache | - | false | disable cache if set value
+read from local flag | - | - | - | false | read value from local json file if set value
+local file path | - | - | - | - | filepath of local json file
 
 Please use `setEtcdConfig` and `setCachePath` function instead of pass params. Will not support params in furture version.
+
+# local Json File
+>## Example
+>proto file
+>```protobuf
+>syntax = "proto3";
+>
+>import "protoconf_common.proto";
+>
+>package com.yoozoo.protoconf;
+>
+>option (app_name)="红岸-test";
+>
+>message Configuration1 {
+>    int32 id =2 [(watch) = true, (default)="23"];
+>    float abc=3;
+>    bool def=4;
+>}
+>
+>message Configuration {
+>    string name =1 [ (watch) = true, (default)="123"];
+>    Configuration1 msg=2;
+>}
+>
+>
+>```
+>json file
+>```json
+>{
+>    "name":"test",
+>    "msg":{
+>        "id":2,
+>        "abc":"abc",
+>        "def":true
+>    }
+>}
+>```
