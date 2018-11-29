@@ -113,7 +113,7 @@ class Client
      */
     public function getEtcdConfigFromAgent()
     {
-        $agent = new agentApplicationService\AgentApplicationService("127.0.0.1:57582");
+        $agent = new agentApplicationService\AgentApplicationService("http://127.0.0.1:57582");
         $logonInfoRequest = new agentApplicationService\LogonInfoRequest();
         $logonInfoRequest->set_app_token($this->app_token);
         $logonInfoRequest->set_env($this->envKey);
